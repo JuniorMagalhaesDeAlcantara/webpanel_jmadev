@@ -57,6 +57,7 @@ try {
                     <li><a href="#sobre">Sobre</a></li>
                     <li><a href="#servicos">Serviços</a></li>
                     <li><a href="#contato">Contato</a></li>
+                    <li><a href="admin.php" class="admin-link" title="Acesso Administrativo">🔒</a></li>
                 </ul>
                 <div class="burger">
                     <span></span>
@@ -149,7 +150,7 @@ try {
     }
     if ($servicesSection):
     ?>
-    <section id="servicos" class="content-section">
+    <section id="servicos" class="content-section services-section">
         <div class="container">
             <h2><?= htmlspecialchars($servicesSection['titulo']) ?></h2>
             <p class="section-subtitle"><?= htmlspecialchars(substr($servicesSection['conteudo'], 0, 150)) ?><?= strlen($servicesSection['conteudo']) > 150 ? '...' : '' ?></p>
@@ -158,12 +159,14 @@ try {
             <div class="services-grid">
                 <?php foreach ($serviceCards as $card): ?>
                 <div class="service-card">
-                    <div class="service-icon"><?= htmlspecialchars($card['icon']) ?></div>
+                    <div class="service-icon"><?= $card['icon'] ?></div>
                     <h3><?= htmlspecialchars($card['title']) ?></h3>
                     <p><?= htmlspecialchars($card['description']) ?></p>
                 </div>
                 <?php endforeach; ?>
             </div>
+            <?php else: ?>
+            <p style="text-align: center; color: #666; padding: 2rem;">Nenhum serviço cadastrado ainda.</p>
             <?php endif; ?>
         </div>
     </section>

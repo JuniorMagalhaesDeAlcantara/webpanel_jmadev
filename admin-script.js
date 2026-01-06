@@ -138,20 +138,22 @@ if (document.getElementById('section_titulo')) {
     });
 }
 
-// Funções para Cards de Serviço
+// Funções para Cards de Serviço - CORRIGIDO
 function addServiceCard() {
     const container = document.getElementById('serviceCardsContainer');
-    const index = container.children.length;
+    const currentCards = container.querySelectorAll('.editable-card');
+    const index = currentCards.length;
     
     const cardHTML = `
         <div class="editable-card" data-index="${index}">
             <div class="card-header">
                 <span class="drag-handle">⋮⋮</span>
-                <button type="button" onclick="removeServiceCard(${index})" class="btn-icon btn-danger">🗑️</button>
+                <button type="button" onclick="removeServiceCard(this)" class="btn-icon btn-danger">🗑️</button>
             </div>
             <div class="form-group">
                 <label>Ícone (Emoji)</label>
-                <input type="text" class="card-icon" placeholder="🚀">
+                <input type="text" class="card-icon" placeholder="🚀" value="🚀">
+                <small>💡 Cole um emoji aqui (Windows: Win + . | Mac: Cmd + Ctrl + Space)</small>
             </div>
             <div class="form-group">
                 <label>Título</label>
@@ -165,17 +167,21 @@ function addServiceCard() {
     `;
     
     container.insertAdjacentHTML('beforeend', cardHTML);
+    updateCardIndexes();
 }
 
-function removeServiceCard(index) {
-    if (confirm('Remover este card?')) {
-        const cards = document.querySelectorAll('#serviceCardsContainer .editable-card');
-        if (cards.length > 1) {
-            cards[index].remove();
+function removeServiceCard(button) {
+    const card = button.closest('.editable-card');
+    const container = document.getElementById('serviceCardsContainer');
+    const cards = container.querySelectorAll('.editable-card');
+    
+    if (cards.length > 1) {
+        if (confirm('Remover este card?')) {
+            card.remove();
             updateCardIndexes();
-        } else {
-            alert('Você precisa manter pelo menos um card!');
         }
+    } else {
+        alert('Você precisa manter pelo menos um card!');
     }
 }
 
@@ -183,40 +189,51 @@ function updateCardIndexes() {
     const cards = document.querySelectorAll('#serviceCardsContainer .editable-card');
     cards.forEach((card, index) => {
         card.dataset.index = index;
-        const deleteBtn = card.querySelector('.btn-icon');
-        deleteBtn.setAttribute('onclick', `removeServiceCard(${index})`);
     });
 }
 
-// Salvar cards de serviço
+// Salvar cards de serviço - CORRIGIDO
 if (document.getElementById('serviceCardsForm')) {
     document.getElementById('serviceCardsForm').addEventListener('submit', function(e) {
         const cards = [];
         const cardElements = document.querySelectorAll('#serviceCardsContainer .editable-card');
         
         cardElements.forEach(card => {
-            const icon = card.querySelector('.card-icon').value;
-            const title = card.querySelector('.card-title').value;
-            const description = card.querySelector('.card-description').value;
+            const icon = card.querySelector('.card-icon').value.trim();
+            const title = card.querySelector('.card-title').value.trim();
+            const description = card.querySelector('.card-description').value.trim();
             
-            if (icon && title && description) {
-                cards.push({ icon, title, description });
+            // Só adiciona se tiver pelo menos título e descrição
+            if (title && description) {
+                cards.push({ 
+                    icon: icon || '📌', 
+                    title: title, 
+                    description: description 
+                });
             }
         });
         
+        if (cards.length === 0) {
+            e.preventDefault();
+            alert('Você precisa preencher pelo menos um card com título e descrição!');
+            return false;
+        }
+        
+        console.log('Cards a serem salvos:', cards);
         document.getElementById('cardsData').value = JSON.stringify(cards);
     });
 }
 
-// Funções para Estatísticas
+// Funções para Estatísticas - CORRIGIDO
 function addStat() {
     const container = document.getElementById('statsContainer');
-    const index = container.children.length;
+    const currentStats = container.querySelectorAll('.stat-card');
+    const index = currentStats.length;
     
     const statHTML = `
         <div class="editable-card stat-card" data-index="${index}">
             <div class="card-header">
-                <button type="button" onclick="removeStat(${index})" class="btn-icon btn-danger">🗑️</button>
+                <button type="button" onclick="removeStat(this)" class="btn-icon btn-danger">🗑️</button>
             </div>
             <div class="form-group">
                 <label>Número</label>
@@ -230,17 +247,21 @@ function addStat() {
     `;
     
     container.insertAdjacentHTML('beforeend', statHTML);
+    updateStatIndexes();
 }
 
-function removeStat(index) {
-    if (confirm('Remover esta estatística?')) {
-        const stats = document.querySelectorAll('#statsContainer .stat-card');
-        if (stats.length > 1) {
-            stats[index].remove();
+function removeStat(button) {
+    const stat = button.closest('.stat-card');
+    const container = document.getElementById('statsContainer');
+    const stats = container.querySelectorAll('.stat-card');
+    
+    if (stats.length > 1) {
+        if (confirm('Remover esta estatística?')) {
+            stat.remove();
             updateStatIndexes();
-        } else {
-            alert('Você precisa manter pelo menos uma estatística!');
         }
+    } else {
+        alert('Você precisa manter pelo menos uma estatística!');
     }
 }
 
@@ -248,26 +269,31 @@ function updateStatIndexes() {
     const stats = document.querySelectorAll('#statsContainer .stat-card');
     stats.forEach((stat, index) => {
         stat.dataset.index = index;
-        const deleteBtn = stat.querySelector('.btn-icon');
-        deleteBtn.setAttribute('onclick', `removeStat(${index})`);
     });
 }
 
-// Salvar estatísticas
+// Salvar estatísticas - CORRIGIDO
 if (document.getElementById('statsForm')) {
     document.getElementById('statsForm').addEventListener('submit', function(e) {
         const stats = [];
         const statElements = document.querySelectorAll('#statsContainer .stat-card');
         
         statElements.forEach(stat => {
-            const number = stat.querySelector('.stat-number').value;
-            const label = stat.querySelector('.stat-label').value;
+            const number = stat.querySelector('.stat-number').value.trim();
+            const label = stat.querySelector('.stat-label').value.trim();
             
             if (number && label) {
-                stats.push({ number, label });
+                stats.push({ number: number, label: label });
             }
         });
         
+        if (stats.length === 0) {
+            e.preventDefault();
+            alert('Você precisa preencher pelo menos uma estatística!');
+            return false;
+        }
+        
+        console.log('Estatísticas a serem salvas:', stats);
         document.getElementById('statsData').value = JSON.stringify(stats);
     });
 }
