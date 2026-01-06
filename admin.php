@@ -6,11 +6,11 @@ require_once 'config.php';
 if (isset($_POST['login'])) {
     $username = $_POST['username'];
     $password = $_POST['password'];
-    
+
     $stmt = $db->prepare("SELECT * FROM admin_users WHERE username = ?");
     $stmt->execute([$username]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['admin_logged_in'] = true;
         $_SESSION['admin_username'] = $username;
@@ -30,15 +30,17 @@ if (isset($_GET['logout'])) {
 
 // Se não estiver logado, mostrar formulário de login
 if (!isLoggedIn()) {
-    ?>
+?>
     <!DOCTYPE html>
     <html lang="pt-BR">
+
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Login - Painel Admin</title>
         <link rel="stylesheet" href="admin-style.css">
     </head>
+
     <body>
         <div class="login-container">
             <div class="login-box">
@@ -63,21 +65,22 @@ if (!isLoggedIn()) {
             </div>
         </div>
     </body>
+
     </html>
-    <?php
+<?php
     exit;
 }
 
 // Processar ações do painel
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
+
     // Atualizar configurações gerais
     if (isset($_POST['update_config'])) {
         $stmt = $db->prepare("UPDATE site_config SET site_title = ?, contato_email = ?, contato_telefone = ? WHERE id = 1");
         $stmt->execute([$_POST['site_title'], $_POST['contato_email'], $_POST['contato_telefone']]);
         $success = "✅ Configurações atualizadas com sucesso!";
     }
-    
+
     // Adicionar item do carousel
     if (isset($_POST['add_carousel'])) {
         $imagem = $_POST['carousel_imagem'];
@@ -85,12 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uploaded = uploadImage($_FILES['carousel_imagem_file']);
             if ($uploaded) $imagem = $uploaded;
         }
-        
+
         $stmt = $db->prepare("INSERT INTO carousel_items (titulo, texto, imagem, botao_texto, botao_link, ordem) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$_POST['carousel_titulo'], $_POST['carousel_texto'], $imagem, $_POST['carousel_botao_texto'], $_POST['carousel_botao_link'], $_POST['carousel_ordem']]);
         $success = "✅ Banner adicionado com sucesso!";
     }
-    
+
     // Atualizar item do carousel
     if (isset($_POST['update_carousel'])) {
         $imagem = $_POST['carousel_imagem'];
@@ -98,19 +101,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uploaded = uploadImage($_FILES['carousel_imagem_file']);
             if ($uploaded) $imagem = $uploaded;
         }
-        
+
         $stmt = $db->prepare("UPDATE carousel_items SET titulo = ?, texto = ?, imagem = ?, botao_texto = ?, botao_link = ?, ordem = ? WHERE id = ?");
         $stmt->execute([$_POST['carousel_titulo'], $_POST['carousel_texto'], $imagem, $_POST['carousel_botao_texto'], $_POST['carousel_botao_link'], $_POST['carousel_ordem'], $_POST['carousel_id']]);
         $success = "✅ Banner atualizado com sucesso!";
     }
-    
+
     // Deletar item do carousel
     if (isset($_POST['delete_carousel'])) {
         $stmt = $db->prepare("DELETE FROM carousel_items WHERE id = ?");
         $stmt->execute([$_POST['carousel_id']]);
         $success = "✅ Banner deletado com sucesso!";
     }
-    
+
     // Adicionar seção
     if (isset($_POST['add_section'])) {
         $imagem = $_POST['section_imagem'];
@@ -118,12 +121,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uploaded = uploadImage($_FILES['section_imagem_file']);
             if ($uploaded) $imagem = $uploaded;
         }
-        
+
         $stmt = $db->prepare("INSERT INTO sections (titulo, slug, conteudo, imagem, ordem) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$_POST['section_titulo'], $_POST['section_slug'], $_POST['section_conteudo'], $imagem, $_POST['section_ordem']]);
         $success = "✅ Seção adicionada com sucesso!";
     }
-    
+
     // Atualizar seção
     if (isset($_POST['update_section'])) {
         $imagem = $_POST['section_imagem'];
@@ -131,19 +134,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $uploaded = uploadImage($_FILES['section_imagem_file']);
             if ($uploaded) $imagem = $uploaded;
         }
-        
+
         $stmt = $db->prepare("UPDATE sections SET titulo = ?, slug = ?, conteudo = ?, imagem = ?, ordem = ? WHERE id = ?");
         $stmt->execute([$_POST['section_titulo'], $_POST['section_slug'], $_POST['section_conteudo'], $imagem, $_POST['section_ordem'], $_POST['section_id']]);
         $success = "✅ Seção atualizada com sucesso!";
     }
-    
+
     // Deletar seção
     if (isset($_POST['delete_section'])) {
         $stmt = $db->prepare("DELETE FROM sections WHERE id = ?");
         $stmt->execute([$_POST['section_id']]);
         $success = "✅ Seção deletada com sucesso!";
     }
-    
+
     // Gerenciar cards de serviço
     if (isset($_POST['save_service_cards'])) {
         $cards = json_decode($_POST['cards_data'], true);
@@ -151,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([json_encode($cards)]);
         $success = "✅ Cards de serviço atualizados!";
     }
-    
+
     // Gerenciar estatísticas
     if (isset($_POST['save_stats'])) {
         $stats = json_decode($_POST['stats_data'], true);
@@ -186,12 +189,14 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel Administrativo - Gerenciamento Completo</title>
     <link rel="stylesheet" href="admin-style.css">
 </head>
+
 <body>
     <!-- Header do Admin -->
     <div class="admin-header">
@@ -293,30 +298,30 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
                             <span>➕</span> Novo Banner
                         </button>
                     </div>
-                    
+
                     <div class="items-grid">
                         <?php foreach ($carousel as $item): ?>
-                        <div class="item-card">
-                            <div class="item-image">
-                                <img src="<?= htmlspecialchars($item['imagem']) ?>" alt="Banner">
-                                <div class="item-order">Ordem: <?= $item['ordem'] ?></div>
-                            </div>
-                            <div class="item-content">
-                                <h3><?= htmlspecialchars($item['titulo']) ?></h3>
-                                <p><?= htmlspecialchars(substr($item['texto'], 0, 80)) ?>...</p>
-                            </div>
-                            <div class="item-actions">
-                                <button onclick="editCarousel(<?= htmlspecialchars(json_encode($item)) ?>)" class="btn btn-small btn-primary">
-                                    ✏️ Editar
-                                </button>
-                                <form method="POST" style="display:inline;">
-                                    <input type="hidden" name="carousel_id" value="<?= $item['id'] ?>">
-                                    <button type="submit" name="delete_carousel" class="btn btn-small btn-danger" onclick="return confirm('Deletar este banner?')">
-                                        🗑️ Deletar
+                            <div class="item-card">
+                                <div class="item-image">
+                                    <img src="<?= htmlspecialchars($item['imagem']) ?>" alt="Banner">
+                                    <div class="item-order">Ordem: <?= $item['ordem'] ?></div>
+                                </div>
+                                <div class="item-content">
+                                    <h3><?= htmlspecialchars($item['titulo']) ?></h3>
+                                    <p><?= htmlspecialchars(substr($item['texto'], 0, 80)) ?>...</p>
+                                </div>
+                                <div class="item-actions">
+                                    <button onclick="editCarousel(<?= htmlspecialchars(json_encode($item)) ?>)" class="btn btn-small btn-primary">
+                                        ✏️ Editar
                                     </button>
-                                </form>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="carousel_id" value="<?= $item['id'] ?>">
+                                        <button type="submit" name="delete_carousel" class="btn btn-small btn-danger" onclick="return confirm('Deletar este banner?')">
+                                            🗑️ Deletar
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
                 </section>
@@ -332,33 +337,33 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
                             <span>➕</span> Nova Seção
                         </button>
                     </div>
-                    
+
                     <div class="items-grid">
                         <?php foreach ($sections as $section): ?>
-                        <div class="item-card">
-                            <?php if ($section['imagem']): ?>
-                            <div class="item-image">
-                                <img src="<?= htmlspecialchars($section['imagem']) ?>" alt="Seção">
-                                <div class="item-order">Ordem: <?= $section['ordem'] ?></div>
-                            </div>
-                            <?php endif; ?>
-                            <div class="item-content">
-                                <h3><?= htmlspecialchars($section['titulo']) ?></h3>
-                                <p class="item-meta">🔗 Slug: <?= htmlspecialchars($section['slug']) ?></p>
-                                <p><?= htmlspecialchars(substr($section['conteudo'], 0, 100)) ?>...</p>
-                            </div>
-                            <div class="item-actions">
-                                <button onclick="editSection(<?= htmlspecialchars(json_encode($section)) ?>)" class="btn btn-small btn-primary">
-                                    ✏️ Editar
-                                </button>
-                                <form method="POST" style="display:inline;">
-                                    <input type="hidden" name="section_id" value="<?= $section['id'] ?>">
-                                    <button type="submit" name="delete_section" class="btn btn-small btn-danger" onclick="return confirm('Deletar esta seção?')">
-                                        🗑️ Deletar
+                            <div class="item-card">
+                                <?php if ($section['imagem']): ?>
+                                    <div class="item-image">
+                                        <img src="<?= htmlspecialchars($section['imagem']) ?>" alt="Seção">
+                                        <div class="item-order">Ordem: <?= $section['ordem'] ?></div>
+                                    </div>
+                                <?php endif; ?>
+                                <div class="item-content">
+                                    <h3><?= htmlspecialchars($section['titulo']) ?></h3>
+                                    <p class="item-meta">🔗 Slug: <?= htmlspecialchars($section['slug']) ?></p>
+                                    <p><?= htmlspecialchars(substr($section['conteudo'], 0, 100)) ?>...</p>
+                                </div>
+                                <div class="item-actions">
+                                    <button onclick="editSection(<?= htmlspecialchars(json_encode($section)) ?>)" class="btn btn-small btn-primary">
+                                        ✏️ Editar
                                     </button>
-                                </form>
+                                    <form method="POST" style="display:inline;">
+                                        <input type="hidden" name="section_id" value="<?= $section['id'] ?>">
+                                        <button type="submit" name="delete_section" class="btn btn-small btn-danger" onclick="return confirm('Deletar esta seção?')">
+                                            🗑️ Deletar
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
                 </section>
@@ -374,30 +379,30 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
                             <span>➕</span> Adicionar Card
                         </button>
                     </div>
-                    
+
                     <div id="serviceCardsContainer" class="cards-manager">
                         <?php foreach ($serviceCards as $index => $card): ?>
-                        <div class="editable-card" data-index="<?= $index ?>">
-                            <div class="card-header">
-                                <span class="drag-handle">⋮⋮</span>
-                                <button onclick="removeServiceCard(<?= $index ?>)" class="btn-icon btn-danger">🗑️</button>
+                            <div class="editable-card" data-index="<?= $index ?>">
+                                <div class="card-header">
+                                    <span class="drag-handle">⋮⋮</span>
+                                    <button type="button" onclick="removeServiceCard(this)" class="btn-icon btn-danger">🗑️</button>
+                                </div>
+                                <div class="form-group">
+                                    <label>Ícone (Emoji)</label>
+                                    <input type="text" class="card-icon" value="<?= htmlspecialchars($card['icon']) ?>" placeholder="🚀">
+                                </div>
+                                <div class="form-group">
+                                    <label>Título</label>
+                                    <input type="text" class="card-title" value="<?= htmlspecialchars($card['title']) ?>">
+                                </div>
+                                <div class="form-group">
+                                    <label>Descrição</label>
+                                    <textarea class="card-description" rows="3"><?= htmlspecialchars($card['description']) ?></textarea>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Ícone (Emoji)</label>
-                                <input type="text" class="card-icon" value="<?= htmlspecialchars($card['icon']) ?>" placeholder="🚀">
-                            </div>
-                            <div class="form-group">
-                                <label>Título</label>
-                                <input type="text" class="card-title" value="<?= htmlspecialchars($card['title']) ?>">
-                            </div>
-                            <div class="form-group">
-                                <label>Descrição</label>
-                                <textarea class="card-description" rows="3"><?= htmlspecialchars($card['description']) ?></textarea>
-                            </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
-                    
+
                     <form method="POST" id="serviceCardsForm">
                         <input type="hidden" name="cards_data" id="cardsData">
                         <button type="submit" name="save_service_cards" class="btn btn-primary btn-large">
@@ -417,29 +422,29 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
                             <span>➕</span> Adicionar Estatística
                         </button>
                     </div>
-                    
+
                     <div id="statsContainer" class="cards-manager stats-grid">
                         <?php foreach ($aboutStats as $index => $stat): ?>
-                        <div class="editable-card stat-card" data-index="<?= $index ?>">
-                            <div class="card-header">
-                                <button onclick="removeStat(<?= $index ?>)" class="btn-icon btn-danger">🗑️</button>
+                            <div class="editable-card stat-card" data-index="<?= $index ?>">
+                                <div class="card-header">
+                                    <button type="button" onclick="removeStat(this)" class="btn-icon btn-danger">🗑️</button>
+                                </div>
+                                <div class="form-group">
+                                    <label>Número</label>
+                                    <input type="text" class="stat-number" value="<?= htmlspecialchars($stat['number']) ?>" placeholder="10+">
+                                </div>
+                                <div class="form-group">
+                                    <label>Descrição</label>
+                                    <input type="text" class="stat-label" value="<?= htmlspecialchars($stat['label']) ?>" placeholder="Anos de Experiência">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label>Número</label>
-                                <input type="text" class="stat-number" value="<?= htmlspecialchars($stat['number']) ?>" placeholder="10+">
-                            </div>
-                            <div class="form-group">
-                                <label>Descrição</label>
-                                <input type="text" class="stat-label" value="<?= htmlspecialchars($stat['label']) ?>" placeholder="Anos de Experiência">
-                            </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
-                    
+
                     <form method="POST" id="statsForm">
                         <input type="hidden" name="stats_data" id="statsData">
                         <button type="submit" name="save_stats" class="btn btn-primary btn-large">
-                            <span>💾</span> Salvar Estatísticas
+                            <span>💾</span> Salvar Todos os Cards
                         </button>
                     </form>
                 </section>
@@ -457,24 +462,24 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
             </div>
             <form method="POST" enctype="multipart/form-data" class="admin-form">
                 <input type="hidden" name="carousel_id" id="carousel_id">
-                
+
                 <div class="form-group">
                     <label>Título do Banner</label>
                     <input type="text" name="carousel_titulo" id="carousel_titulo" required placeholder="Ex: Transforme Seu Negócio">
                 </div>
-                
+
                 <div class="form-group">
                     <label>Texto Descritivo</label>
                     <textarea name="carousel_texto" id="carousel_texto" rows="3" placeholder="Texto que aparecerá abaixo do título"></textarea>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Imagem do Banner</label>
                     <input type="text" name="carousel_imagem" id="carousel_imagem" placeholder="https://exemplo.com/imagem.jpg">
                     <small>💡 Ou faça upload de uma imagem:</small>
                     <input type="file" name="carousel_imagem_file" accept="image/*">
                 </div>
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Texto do Botão (opcional)</label>
@@ -485,12 +490,12 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
                         <input type="text" name="carousel_botao_link" id="carousel_botao_link" placeholder="#servicos">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Ordem de Exibição</label>
                     <input type="number" name="carousel_ordem" id="carousel_ordem" value="1" min="1">
                 </div>
-                
+
                 <div class="modal-footer">
                     <button type="button" onclick="closeCarouselForm()" class="btn btn-secondary">Cancelar</button>
                     <button type="submit" name="add_carousel" id="carouselSubmitBtn" class="btn btn-primary">Salvar Banner</button>
@@ -508,7 +513,7 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
             </div>
             <form method="POST" enctype="multipart/form-data" class="admin-form">
                 <input type="hidden" name="section_id" id="section_id">
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label>Título da Seção</label>
@@ -520,24 +525,24 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
                         <small>💡 Usado para criar âncoras de navegação (#sobre-nos)</small>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Conteúdo</label>
                     <textarea name="section_conteudo" id="section_conteudo" rows="6" placeholder="Escreva o conteúdo da seção..."></textarea>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Imagem (opcional)</label>
                     <input type="text" name="section_imagem" id="section_imagem" placeholder="https://exemplo.com/imagem.jpg">
                     <small>💡 Ou faça upload de uma imagem:</small>
                     <input type="file" name="section_imagem_file" accept="image/*">
                 </div>
-                
+
                 <div class="form-group">
                     <label>Ordem de Exibição</label>
                     <input type="number" name="section_ordem" id="section_ordem" value="1" min="1">
                 </div>
-                
+
                 <div class="modal-footer">
                     <button type="button" onclick="closeSectionForm()" class="btn btn-secondary">Cancelar</button>
                     <button type="submit" name="add_section" id="sectionSubmitBtn" class="btn btn-primary">Salvar Seção</button>
@@ -548,4 +553,5 @@ $aboutStats = isset($config['about_stats']) ? json_decode($config['about_stats']
 
     <script src="admin-script.js"></script>
 </body>
+
 </html>
