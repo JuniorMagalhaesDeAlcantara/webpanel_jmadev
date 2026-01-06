@@ -44,7 +44,7 @@ function moveSlide(n) {
     showSlide(currentSlide);
 }
 
-function currentSlide(n) {
+function goToSlide(n) {
     currentSlide = n;
     showSlide(currentSlide);
 }
