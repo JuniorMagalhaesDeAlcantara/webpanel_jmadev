@@ -1,4 +1,5 @@
-/* style.css - Design ultra moderno e profissional */
+
+/* style.css - Design ultra moderno e profissional - RESPONSIVO CORRIGIDO */
 :root {
     --primary: #0f172a;
     --primary-dark: #020617;
@@ -22,6 +23,8 @@
 
 html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 body {
@@ -31,6 +34,8 @@ body {
     background: #fff;
     overflow-x: hidden;
     position: relative;
+    width: 100%;
+    max-width: 100vw;
 }
 
 /* ========== ELEMENTOS DE FUNDO ANIMADOS ========== */
@@ -107,49 +112,18 @@ body::after {
     0% {
         transform: translate(0, 0);
     }
-
     100% {
         transform: translate(50px, 50px);
     }
 }
 
 @keyframes float {
-
-    0%,
-    100% {
+    0%, 100% {
         transform: translate(0, 0) scale(1);
     }
-
     33% {
         transform: translate(30px, -30px) scale(1.1);
     }
-
-    66% {
-        transform: translate(-30px, 30px) scale(0.9);
-    }
-}
-
-@keyframes moveGrid {
-    0% {
-        transform: translate(0, 0);
-    }
-
-    100% {
-        transform: translate(50px, 50px);
-    }
-}
-
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-
-    33% {
-        transform: translate(30px, -30px) scale(1.1);
-    }
-
     66% {
         transform: translate(-30px, 30px) scale(0.9);
     }
@@ -315,7 +289,6 @@ header.scrolled {
     0% {
         transform: scale(1);
     }
-
     100% {
         transform: scale(1.1);
     }
@@ -329,8 +302,9 @@ header.scrolled {
     text-align: center;
     color: white;
     max-width: 900px;
+    width: 90%;
     padding: 2rem;
-    z-index: 2;
+    z-index: 5;
     animation: fadeInUp 1.2s ease;
 }
 
@@ -364,6 +338,7 @@ header.scrolled {
     box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
     position: relative;
     overflow: hidden;
+    z-index: 6;
 }
 
 .btn::before {
@@ -402,7 +377,7 @@ header.scrolled {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
+    z-index: 3;
 }
 
 .carousel-control:hover {
@@ -425,7 +400,7 @@ header.scrolled {
     transform: translateX(-50%);
     display: flex;
     gap: 1rem;
-    z-index: 10;
+    z-index: 3;
 }
 
 .dot {
@@ -512,12 +487,9 @@ header.scrolled {
 }
 
 @keyframes floatSlow {
-
-    0%,
-    100% {
+    0%, 100% {
         transform: translate(0, 0);
     }
-
     50% {
         transform: translate(50px, 50px);
     }
@@ -749,13 +721,10 @@ header.scrolled {
 }
 
 @keyframes pulse {
-
-    0%,
-    100% {
+    0%, 100% {
         transform: scale(1);
         opacity: 0.5;
     }
-
     50% {
         transform: scale(1.2);
         opacity: 0.8;
